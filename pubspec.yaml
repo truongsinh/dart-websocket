@@ -1,0 +1,11 @@
+name: websocket
+description: Universal package for websocket, compatible for web, flutter, and vm.
+version: 0.0.4
+author: TruongSinh Tran-Nguyen <i@truongsinh.pro>
+homepage: https://github.com/truongsinh/dart-websocket
+
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+
+dev_dependencies:
+  test: any
