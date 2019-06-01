@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:test/test.dart';
 
@@ -11,6 +12,27 @@ void main() {
       final socket = await WebSocket.connect(url);
       expect(socket.readyState, 1);
       socket.close();
+    });
+    test('close connection from client side', () async {
+      final socket = await WebSocket.connect(url);
+      expect(socket.readyState, 1);
+      await expectLater(socket.stream, emitsInOrder([]));
+      socket.close(3001, 'reason 3001');
+      await expectLater(socket.stream, emitsDone);
+      expect(socket.closeCode, 3001);
+      expect(socket.closeReason, 'reason 3001');
+    });
+    test('close connection from server side', () async {
+      final socket = await WebSocket.connect(url);
+      expect(socket.readyState, 1);
+      await socket.add(jsonEncode({
+        'command': 'close',
+        'code': 3002,
+        'reason': 'reason 3002',
+      }));
+      await expectLater(socket.stream, emitsDone);
+      expect(socket.closeCode, 3002);
+      expect(socket.closeReason, 'reason 3002');
     });
     test('open connection with protocol', () async {
       final socket =
@@ -69,9 +91,37 @@ void main() {
         final stream1 = StreamController();
         socket.addStream(stream1.stream);
         final stream2 = StreamController();
-        await expect(() => socket.addStream(stream2.stream), throwsA(isStateError));
+        await expect(
+            () => socket.addStream(stream2.stream), throwsA(isStateError));
       });
-      test('multiple broadcase-stream', () {});
+      test('cannot send more data after addStream', () async {
+        final stream1 = StreamController();
+        socket.addStream(stream1.stream);
+        await expect(() => socket.add('a'), throwsA(isStateError));
+        await expect(() => socket.addUtf8Text([0, 1]), throwsA(isStateError));
+        await expect(() => socket.close(), throwsA(isStateError));
+      }, skip: true);
+      test('broadcast stream', () async {
+        final stream1 = StreamController.broadcast();
+        socket.addStream(stream1.stream);
+
+        stream1.add('frame1');
+        stream1.add('frame3');
+
+        await expectLater(
+            socket.stream,
+            emitsInOrder([
+              'frame1',
+              'frame3',
+            ]));
+      });
+      test('multiple broadcast streams throw error', () async {
+        final stream1 = StreamController.broadcast();
+        socket.addStream(stream1.stream);
+        final stream2 = StreamController.broadcast();
+        await expect(
+            () => socket.addStream(stream2.stream), throwsA(isStateError));
+      });
     });
     group('#addUtf8Text', () {
       test('text', () async {

@@ -8,8 +8,14 @@ import './websocket_stub.dart' as stub;
 
 class WebSocket implements stub.WebSocket {
   html.WebSocket _socket;
+  final StreamController _streamConsumer = StreamController();
 
   WebSocket._(this._socket) {
+    _streamConsumer.stream.listen((data) {
+      _send(data);
+    }, onError: (error) {
+      _send(error.toString());
+    },);
     _socket.onClose.listen((html.CloseEvent event) {
       closeCode = event.code;
       closeReason = event.reason;
@@ -46,8 +52,7 @@ class WebSocket implements stub.WebSocket {
     return WebSocket._(s);
   }
 
-  @override
-  void add(/*String|List<int>*/ data) {
+  void _send(/*String|List<int>*/ data) {
     if (data is String) {
       return _socket.send(data);
     }
@@ -59,20 +64,13 @@ class WebSocket implements stub.WebSocket {
   }
 
   @override
-  Future addStream(Stream stream) {
-    final completer = Completer();
-    stream.listen((data) {
-      _socket.send(data);
-    }, onError: (error) {
-      _socket.send(error.toString());
-      completer.completeError(error);
-    }, onDone: () => completer.complete());
-    return completer.future;
-  }
+  void add(/*String|List<int>*/ data) => _streamConsumer.add(data);
 
   @override
-  void addUtf8Text(List<int> bytes) =>
-      _socket.send(utf8.decode(bytes));
+  Future addStream(Stream stream) =>_streamConsumer.addStream(stream);
+
+  @override
+  void addUtf8Text(List<int> bytes) => _streamConsumer.add(utf8.decode(bytes));
 
   @override
   Future close([int code, String reason]) {
@@ -103,7 +101,7 @@ class WebSocket implements stub.WebSocket {
   Future get done => _socket.onClose.first;
 
   StreamController<dynamic /*String|List<int>*/ > _streamController =
-      StreamController.broadcast(); //Add .broadcast here
+      StreamController.broadcast();
 
   @override
   Stream<dynamic /*String|List<int>*/ > get stream => _streamController.stream;
