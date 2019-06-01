@@ -5,7 +5,7 @@ import 'dart:async';
 final _unsupportedError = UnsupportedError(
     'Cannot work with WebSocket without dart:html or dart:io.');
 
-class WebSocket implements StreamSink<dynamic /*String|List<int>*/ > {
+class WebSocket implements StreamConsumer<dynamic /*String|List<int>*/ > {
   static Future<WebSocket> connect(
     String url, {
     Iterable<String> protocols,
@@ -14,6 +14,7 @@ class WebSocket implements StreamSink<dynamic /*String|List<int>*/ > {
 
   void add(/*String|List<int>*/ data) => throw _unsupportedError;
 
+  @Deprecated("Use `pipe` instead")
   Future addStream(Stream stream) => throw _unsupportedError;
 
   void addUtf8Text(List<int> bytes) => throw _unsupportedError;
@@ -29,9 +30,6 @@ class WebSocket implements StreamSink<dynamic /*String|List<int>*/ > {
   String get protocol => throw _unsupportedError;
 
   int get readyState => throw _unsupportedError;
-
-  void addError(Object error, [StackTrace stackTrace]) =>
-      throw _unsupportedError;
 
   Future get done => throw _unsupportedError;
 

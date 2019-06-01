@@ -44,10 +44,6 @@ class WebSocket implements stub.WebSocket {
   int get readyState => _socket.readyState;
 
   @override
-  void addError(Object error, [StackTrace stackTrace]) =>
-      _socket.addError(error, stackTrace);
-
-  @override
   Future get done => _socket.done;
 
   Stream _stream;

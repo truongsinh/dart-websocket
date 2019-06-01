@@ -100,10 +100,6 @@ class WebSocket implements stub.WebSocket {
   int get readyState => _socket.readyState;
 
   @override
-  void addError(Object error, [StackTrace stackTrace]) =>
-      _streamController.addError(error, stackTrace);
-
-  @override
   Future get done => _socket.onClose.first;
 
   StreamController<dynamic /*String|List<int>*/ > _streamController =

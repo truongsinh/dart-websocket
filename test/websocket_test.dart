@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 
 import 'package:websocket/websocket.dart' show WebSocket;
@@ -25,7 +27,7 @@ void main() {
       socket = await WebSocket.connect(url);
     });
     tearDown(() {
-      socket?.close();
+      // socket?.close();
     });
     group('#add', () {
       test('String ASCII', () async {
@@ -43,10 +45,37 @@ void main() {
       });
     });
 
+    group('#addStream', () {
+      tearDown(() {
+        // otherwise socket?.close(); in other teadDown will throw error
+        // Bad state: StreamSink is already bound to a stream
+        socket = null;
+      });
+      test('single-subscription stream', () async {
+        final stream1 = StreamController();
+        socket.addStream(stream1.stream);
+
+        stream1.add('frame1');
+        stream1.add('frame3');
+
+        await expectLater(
+            socket.stream,
+            emitsInOrder([
+              'frame1',
+              'frame3',
+            ]));
+      });
+      test('multiple streams throw error', () async {
+        final stream1 = StreamController();
+        socket.addStream(stream1.stream);
+        final stream2 = StreamController();
+        await expect(() => socket.addStream(stream2.stream), throwsA(isStateError));
+      });
+      test('multiple broadcase-stream', () {});
+    });
     group('#addUtf8Text', () {
       test('text', () async {
         socket.addUtf8Text(<int>[00, 1, 195, 191]);
-        // await expectLater(socket.stream, emits('\u{0}\u{1}\u{FF}'));
         expect(await socket.stream.first, '\u{0}\u{1}\u{FF}');
       });
     });
