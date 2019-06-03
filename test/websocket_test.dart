@@ -49,7 +49,7 @@ void main() {
       socket = await WebSocket.connect(url);
     });
     tearDown(() {
-      // socket?.close();
+      socket?.close();
     });
     group('#add', () {
       test('String ASCII', () async {
@@ -68,17 +68,24 @@ void main() {
     });
 
     group('#addStream', () {
+      StreamController stream1;
+      StreamController stream2;
+      setUp((){
+        stream1 = StreamController();
+        stream2 = StreamController();
+      });
       tearDown(() {
+        stream1.close();
+        stream2.close();
         // otherwise socket?.close(); in other teadDown will throw error
         // Bad state: StreamSink is already bound to a stream
         socket = null;
       });
       test('single-subscription stream', () async {
-        final stream1 = StreamController();
-        socket.addStream(stream1.stream);
-
-        stream1.add('frame1');
-        stream1.add('frame3');
+        stream1
+          ..stream.pipe(socket)
+          ..add('frame1')
+          ..add('frame3');
 
         await expectLater(
             socket.stream,
@@ -88,25 +95,20 @@ void main() {
             ]));
       });
       test('multiple streams throw error', () async {
-        final stream1 = StreamController();
-        socket.addStream(stream1.stream);
-        final stream2 = StreamController();
-        await expect(
-            () => socket.addStream(stream2.stream), throwsA(isStateError));
+        stream1.stream.pipe(socket);
+        await expect(() => stream2.stream.pipe(socket), throwsA(isStateError));
       });
       test('cannot send more data after addStream', () async {
-        final stream1 = StreamController();
         socket.addStream(stream1.stream);
         await expect(() => socket.add('a'), throwsA(isStateError));
         await expect(() => socket.addUtf8Text([0, 1]), throwsA(isStateError));
         await expect(() => socket.close(), throwsA(isStateError));
       }, skip: true);
       test('broadcast stream', () async {
-        final stream1 = StreamController.broadcast();
-        socket.addStream(stream1.stream);
-
-        stream1.add('frame1');
-        stream1.add('frame3');
+        stream1
+          ..stream.pipe(socket)
+          ..add('frame1')
+          ..add('frame3');
 
         await expectLater(
             socket.stream,
@@ -117,10 +119,11 @@ void main() {
       });
       test('multiple broadcast streams throw error', () async {
         final stream1 = StreamController.broadcast();
-        socket.addStream(stream1.stream);
+        stream1.stream.pipe(socket);
         final stream2 = StreamController.broadcast();
-        await expect(
-            () => socket.addStream(stream2.stream), throwsA(isStateError));
+        await expect(() => stream2.stream.pipe(socket), throwsA(isStateError));
+        stream1.close();
+        stream2.close();
       });
     });
     group('#addUtf8Text', () {
