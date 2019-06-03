@@ -70,7 +70,7 @@ void main() {
     group('#addStream', () {
       StreamController stream1;
       StreamController stream2;
-      setUp((){
+      setUp(() {
         stream1 = StreamController();
         stream2 = StreamController();
       });
