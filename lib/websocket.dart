@@ -1,4 +1,3 @@
-
 export 'src/websocket_stub.dart'
     if (dart.library.html) 'src/websocket_browser.dart'
     // ignore: uri_does_not_exist

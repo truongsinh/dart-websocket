@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'package:websocket/websocket.dart' show WebSocket;
 
 void main() {
-  final url = 'ws://localhost:8080';
+  final url = 'ws://localhost:5600';
   group('#connect', () {
     test('open connection', () async {
       final socket = await WebSocket.connect(url);

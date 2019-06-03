@@ -14,7 +14,6 @@ class WebSocket implements StreamConsumer<dynamic /*String|List<int>*/ > {
 
   void add(/*String|List<int>*/ data) => throw _unsupportedError;
 
-  @Deprecated("Use `pipe` instead")
   Future addStream(Stream stream) => throw _unsupportedError;
 
   void addUtf8Text(List<int> bytes) => throw _unsupportedError;
