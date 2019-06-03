@@ -14,7 +14,6 @@ test_task:
     CODECOV_TOKEN: ENCRYPTED[fa57a1dda8bca6ad45ef10043f632b68b7824b60c634415f741a847788c1a44ae9374155e3af3346fb9b6d72bac0e1d3]
   test_script:
   - dart tools/server.dart & # start websocket server
-  - pub global activate test_coverage
   - test_coverage
   # workaround until https://github.com/cirruslabs/docker-images-flutter/pull/18
   - sudo apt-get update &&

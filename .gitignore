@@ -8,6 +8,8 @@
 .buildlog/
 .history
 .svn/
+test/.test_coverage.dart
+coverage/
 
 # IntelliJ related
 *.iml
