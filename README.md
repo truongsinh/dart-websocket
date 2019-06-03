@@ -1,14 +1,16 @@
-# websocket
+[![build][build-badge]][build-link]
+[![codecov][coverage-badge]][coverage-link]
+[![version][version-badge]][package-link]
 
-A new Flutter package project.
+# Websocket
 
-## Getting Started
+Websocket universal package for  Dart, compatible with web, flutter, and vm.
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+[build-badge]: https://api.cirrus-ci.com/github/truongsinh/dart-websocket.svg
+[build-link]: https://cirrus-ci.com/github/truongsinh/dart-websocket/master
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+[coverage-badge]: https://codecov.io/gh/truongsinh/dart-websocket/branch/master/graph/badge.svg
+[coverage-link]: https://codecov.io/gh/truongsinh/dart-websocket
+
+[version-badge]: https://img.shields.io/pub/v/websocket.svg
+[package-link]: https://pub.dev/packages/websocket
