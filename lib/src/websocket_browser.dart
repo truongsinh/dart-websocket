@@ -10,18 +10,16 @@ class WebSocket implements stub.WebSocket {
   html.WebSocket _socket;
   final StreamController _streamConsumer = StreamController();
 
-  WebSocket._(this._socket) {
-    _streamConsumer.stream.listen((data) {
-      _send(data);
-    }, onError: (error) {
-      _send(error.toString());
-    },);
+  WebSocket._(this._socket) : done = _socket.onClose.first {
+    _streamConsumer.stream.listen(
+      (data) => _send(data),
+      onError: (error) => _send(error.toString()),
+    );
     _socket.onClose.listen((html.CloseEvent event) {
       closeCode = event.code;
       closeReason = event.reason;
       _streamController.close();
     });
-
     _socket.onError.listen((html.Event error) {
       _streamController.addError(error);
     });
@@ -67,19 +65,20 @@ class WebSocket implements stub.WebSocket {
   void add(/*String|List<int>*/ data) => _streamConsumer.add(data);
 
   @override
-  Future addStream(Stream stream) =>_streamConsumer.addStream(stream);
+  Future addStream(Stream stream) => _streamConsumer.addStream(stream);
 
   @override
   void addUtf8Text(List<int> bytes) => _streamConsumer.add(utf8.decode(bytes));
 
   @override
   Future close([int code, String reason]) {
+    _streamConsumer.close();
     if (code != null) {
       _socket.close(code, reason);
     } else {
       _socket.close();
     }
-    return _socket.onClose.first;
+    return done;
   }
 
   @override
@@ -98,7 +97,7 @@ class WebSocket implements stub.WebSocket {
   int get readyState => _socket.readyState;
 
   @override
-  Future get done => _socket.onClose.first;
+  final Future done;
 
   StreamController<dynamic /*String|List<int>*/ > _streamController =
       StreamController.broadcast();

@@ -4,7 +4,11 @@ import 'dart:io';
 const PORT = 5600;
 void main() async {
   HttpServer server = await HttpServer.bind('localhost', PORT);
-  server.transform(WebSocketTransformer()).listen((WebSocket client) {
+  server.transform(
+      WebSocketTransformer(protocolSelector: (List<String> protocols) {
+    print('Requested protocols: $protocols');
+    return protocols?.elementAt(0) ?? '';
+  })).listen((WebSocket client) {
     print('a client just connected');
     client.listen((data) {
       try {

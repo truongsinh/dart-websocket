@@ -11,7 +11,8 @@ void main() {
     test('open connection', () async {
       final socket = await WebSocket.connect(url);
       expect(socket.readyState, 1);
-      socket.close();
+      await socket.close();
+      await socket.done;
     });
     test('close connection from client side', () async {
       final socket = await WebSocket.connect(url);
@@ -21,6 +22,7 @@ void main() {
       await expectLater(socket.stream, emitsDone);
       expect(socket.closeCode, 3001);
       expect(socket.closeReason, 'reason 3001');
+      await socket.done;
     });
     test('close connection from server side', () async {
       final socket = await WebSocket.connect(url);
@@ -33,14 +35,24 @@ void main() {
       await expectLater(socket.stream, emitsDone);
       expect(socket.closeCode, 3002);
       expect(socket.closeReason, 'reason 3002');
+      await socket.done;
     });
     test('open connection with protocol', () async {
-      final socket =
-          await WebSocket.connect(url, protocols: ['weird-protocol']);
+      final socket = await WebSocket.connect(url,
+          protocols: ['weird-protocol', 'another-protocol']);
       expect(socket.readyState, 1);
+      expect(socket.protocol, 'weird-protocol');
+      if (socket.extensions is String) {
+        // in browser
+        expect(
+            socket.extensions, 'permessage-deflate; client_max_window_bits=15');
+      } else {
+        expect(socket.extensions, null);
+      }
       socket.close();
-    }, skip: true);
-    test('error connection', () {}, skip: true);
+      await socket.done;
+    });
+    // test('error connection', () {}, skip: true);
   });
 
   group('instance method', () {
@@ -99,11 +111,11 @@ void main() {
         await expect(() => stream2.stream.pipe(socket), throwsA(isStateError));
       });
       test('cannot send more data after addStream', () async {
-        socket.addStream(stream1.stream);
+        stream1.stream.pipe(socket);
         await expect(() => socket.add('a'), throwsA(isStateError));
         await expect(() => socket.addUtf8Text([0, 1]), throwsA(isStateError));
         await expect(() => socket.close(), throwsA(isStateError));
-      }, skip: true);
+      });
       test('broadcast stream', () async {
         stream1
           ..stream.pipe(socket)
