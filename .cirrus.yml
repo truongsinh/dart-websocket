@@ -11,10 +11,10 @@ test_task:
   analyze_script: dartanalyzer --fatal-infos .
   # publishable_script: pub publish --dry-run
   environment:
-    CODECOV_TOKEN: ENCRYPTED[fa57a1dda8bca6ad45ef10043f632b68b7824b60c634415f741a847788c1a44ae9374155e3af3346fb9b6d72bac0e1d3]
+    CODECOV_TOKEN: ENCRYPTED[64bbc39e3fd05e26073199c780e33a45609d3b2cc824dc11652e0c8c6bbf14db56ed5bd50153f67cc2a89a5d5185cd9a]
   test_script:
   - dart tools/server.dart & # start websocket server
-  - test_coverage
+  - pub run test_coverage
   # workaround until https://github.com/cirruslabs/docker-images-flutter/pull/18
   - sudo apt-get update &&
     sudo apt-get install -y --allow-unauthenticated --no-install-recommends chromium
