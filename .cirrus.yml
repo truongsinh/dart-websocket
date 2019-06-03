@@ -20,7 +20,7 @@ test_task:
   # - pub global run coverage:format_coverage --lcov --in=coverage.json --out=lcov.info --packages=.packages --report-on=lib
   - pub run test -p vm
   # workaround until https://github.com/cirruslabs/docker-images-flutter/pull/18
-  - sudo apt-get update && \
+  - sudo apt-get update &&
     sudo apt-get install -y --allow-unauthenticated --no-install-recommends chromium
   - pub run test -p chromium
   #- bash <(curl -s https://codecov.io/bash)
