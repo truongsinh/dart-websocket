@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:websocket/websocket.dart';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,19 +10,25 @@ class MyApp extends StatelessWidget {
     final title = 'WebSocket Demo';
     return MaterialApp(
       title: title,
-      home: MyHomePage(
-        title: title,
-        channel: IOWebSocketChannel.connect('ws://echo.websocket.org'),
-      ),
+      home: FutureBuilder<WebSocket>(
+          future: WebSocket.connect('ws://echo.websocket.org'),
+          builder: (BuildContext context, AsyncSnapshot<WebSocket> snapshot) {
+            return snapshot.hasData
+                ? MyHomePage(
+                    title: title,
+                    socket: snapshot.data,
+                  )
+                : Container();
+          }),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   final String title;
-  final WebSocketChannel channel;
+  final WebSocket socket;
 
-  MyHomePage({Key key, @required this.title, @required this.channel})
+  MyHomePage({Key key, @required this.title, @required this.socket})
       : super(key: key);
 
   @override
@@ -51,14 +56,14 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             StreamBuilder(
-              stream: widget.channel.stream,
+              stream: widget.socket.stream,
               builder: (context, snapshot) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Text(snapshot.hasData ? '${snapshot.data}' : ''),
                 );
               },
-            )
+            ),
           ],
         ),
       ),
@@ -72,13 +77,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
-      widget.channel.sink.add(_controller.text);
+      widget.socket.add(_controller.text);
     }
   }
 
   @override
   void dispose() {
-    widget.channel.sink.close();
+    widget.socket.close();
     super.dispose();
   }
 }
