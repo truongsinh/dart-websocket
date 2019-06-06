@@ -10,3 +10,4 @@ environment:
 dev_dependencies:
   test: any
   test_coverage: any
+  stream_channel: any

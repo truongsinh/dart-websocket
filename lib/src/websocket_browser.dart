@@ -3,6 +3,7 @@ library websocket;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
+import 'dart:html';
 import 'dart:typed_data';
 import './websocket_stub.dart' as stub;
 
@@ -46,7 +47,36 @@ class WebSocket implements stub.WebSocket {
     Iterable<String> protocols,
   }) async {
     final s = html.WebSocket(url, protocols);
-    await s.onOpen.first;
+
+    final completer = Completer();
+
+    var errorSubscription;
+    var openSubscription;
+    var closeSubscription;
+    var cancelAllSubscription;
+    openSubscription = s.onOpen.listen((_) {
+      cancelAllSubscription();
+      completer.complete();
+    });
+    errorSubscription = s.onError.listen((_) {
+      cancelAllSubscription();
+      completer.completeError(ArgumentError('Cannot connect to'
+          'url $url with protocols $protocols.'
+          'Please double check your arguments'));
+      ;
+    });
+    closeSubscription = s.onClose.listen((CloseEvent error) {
+      completer.completeError(ArgumentError('Cannot connect to'
+          'url $url with protocols $protocols.'
+          'Please double check your arguments'));
+    });
+    cancelAllSubscription = () {
+      errorSubscription.cancel();
+      openSubscription.cancel();
+      closeSubscription.cancel();
+    };
+
+    await completer.future;
     return WebSocket._(s);
   }
 
