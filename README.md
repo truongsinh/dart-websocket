@@ -4,7 +4,7 @@
 
 # Websocket
 
-Websocket universal package for  Dart, compatible with web, flutter, and vm.
+Websocket universal depdency-free package for Dart, compatible with web, flutter, and vm.
 
 [build-badge]: https://api.cirrus-ci.com/github/truongsinh/dart-websocket.svg
 [build-link]: https://cirrus-ci.com/github/truongsinh/dart-websocket/master
