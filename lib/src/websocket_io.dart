@@ -11,7 +11,7 @@ class WebSocket implements stub.WebSocket {
 
   static Future<WebSocket> connect(
     String url, {
-    Iterable<String> protocols,
+    Iterable<String>? protocols,
   }) async {
     return WebSocket._(await io.WebSocket.connect(url, protocols: protocols));
   }
@@ -26,19 +26,19 @@ class WebSocket implements stub.WebSocket {
   void addUtf8Text(List<int> bytes) => _socket.addUtf8Text(bytes);
 
   @override
-  Future close([int code, String reason]) => _socket.close(code, reason);
+  Future close([int? code, String? reason]) => _socket.close(code, reason);
 
   @override
-  int get closeCode => _socket.closeCode;
+  int? get closeCode => _socket.closeCode;
 
   @override
-  String get closeReason => _socket.closeReason;
+  String? get closeReason => _socket.closeReason;
 
   @override
   String get extensions => _socket.extensions;
 
   @override
-  String get protocol => _socket.protocol;
+  String? get protocol => _socket.protocol;
 
   @override
   int get readyState => _socket.readyState;
@@ -46,9 +46,8 @@ class WebSocket implements stub.WebSocket {
   @override
   Future get done => _socket.done;
 
-  Stream _stream;
+  Stream? _stream;
 
   @override
-  Stream<dynamic /*String|List<int>*/ > get stream =>
-      _stream ??= _socket.asBroadcastStream();
+  Stream<dynamic /*String|List<int>*/ > get stream => _stream ??= _socket.asBroadcastStream();
 }
